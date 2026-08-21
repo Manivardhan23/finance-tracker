@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.DS_Store
+tracker.db
+*.db
+token.json
+credentials.json
+test_fetch.py

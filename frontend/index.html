@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFC Finance Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ─────────────────────────────────────────────────────────── -->
+<div id="login-screen" class="login-screen hidden">
+    <div class="login-card">
+        <h1>💰 Finance Tracker</h1>
+        <p>Sign in to your dashboard</p>
+        <form id="login-form">
+            <input type="text" id="login-username" placeholder="Username" required autocomplete="username">
+            <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+            <button type="submit" class="primary-btn full-width">Sign In</button>
+            <p id="login-error" class="error-msg hidden"></p>
+        </form>
+    </div>
+</div>
+
+<!-- ── MAIN APP ──────────────────────────────────────────────────────────────── -->
+<div id="app" class="hidden">
+    <header class="topbar">
+        <span class="logo">💰 Finance Tracker</span>
+        <div class="topbar-actions">
+            <button id="add-tx-btn" class="primary-btn">+ Add Transaction</button>
+            <button id="logout-btn" class="ghost-btn">Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- ── SUMMARY CARDS ──────────────────────────────────────────────── -->
+        <section class="stats-row" id="stats-row">
+            <!-- injected by JS -->
+        </section>
+
+        <!-- ── CHART + CATEGORY MANAGER ──────────────────────────────────── -->
+        <section class="two-col">
+            <div class="card">
+                <h2>Spend by Category</h2>
+                <canvas id="pie-chart" height="260"></canvas>
+            </div>
+
+            <div class="card">
+                <div class="card-header-row">
+                    <h2>Categories</h2>
+                    <button id="new-cat-btn" class="small-btn">+ New</button>
+                </div>
+                <div id="categories-list"><!-- injected --></div>
+            </div>
+        </section>
+
+        <!-- ── TRANSACTIONS TABLE ─────────────────────────────────────────── -->
+        <div class="card">
+            <div class="card-header-row">
+                <h2>Transactions</h2>
+                <div class="table-actions">
+                    <input type="file" id="statement-file" accept="application/pdf" class="hidden">
+                    <button id="upload-btn" class="ghost-btn">📄 Upload Statement</button>
+                    <span id="upload-status" class="status-msg"></span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table id="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Merchant</th>
+                            <th>Category</th>
+                            <th>Source</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-body"><!-- injected --></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ── ADD TRANSACTION MODAL ─────────────────────────────────────────────────── -->
+<div id="add-tx-modal" class="modal hidden">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Add Transaction</h3>
+            <button class="close-btn" data-close="add-tx-modal">✕</button>
+        </div>
+        <form id="add-tx-form">
+            <label>Merchant / Description
+                <input type="text" id="tx-merchant" placeholder="e.g. Reliance Fresh" required>
+            </label>
+            <label>Amount (₹)
+                <input type="number" id="tx-amount" placeholder="0.00" step="0.01" min="0.01" required>
+            </label>
+            <label>Type
+                <select id="tx-type">
+                    <option value="debit">Debit (paid)</option>
+                    <option value="credit">Credit (received)</option>
+                </select>
+            </label>
+            <label>Date
+                <input type="date" id="tx-date" required>
+            </label>
+            <label>Category
+                <select id="tx-category"><!-- filled by JS --></select>
+            </label>
+            <label>Note (optional)
+                <input type="text" id="tx-note" placeholder="e.g. Cash payment">
+            </label>
+            <div class="modal-footer">
+                <button type="button" class="ghost-btn" data-close="add-tx-modal">Cancel</button>
+                <button type="submit" class="primary-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── CATEGORY MODAL ────────────────────────────────────────────────────────── -->
+<div id="cat-modal" class="modal hidden">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 id="cat-modal-title">Manage Category</h3>
+            <button class="close-btn" data-close="cat-modal">✕</button>
+        </div>
+        <div id="cat-modal-body"><!-- injected --></div>
+    </div>
+</div>
+
+<!-- ── NEW CATEGORY MODAL ────────────────────────────────────────────────────── -->
+<div id="new-cat-modal" class="modal hidden">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Create Category</h3>
+            <button class="close-btn" data-close="new-cat-modal">✕</button>
+        </div>
+        <form id="new-cat-form">
+            <label>Category Name
+                <input type="text" id="new-cat-name" placeholder="e.g. Gym" required>
+            </label>
+            <div class="modal-footer">
+                <button type="button" class="ghost-btn" data-close="new-cat-modal">Cancel</button>
+                <button type="submit" class="primary-btn">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── RECATEGORIZE MODAL ────────────────────────────────────────────────────── -->
+<div id="recat-modal" class="modal hidden">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Change Category</h3>
+            <button class="close-btn" data-close="recat-modal">✕</button>
+        </div>
+        <div id="recat-body"><!-- injected --></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

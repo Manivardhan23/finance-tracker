@@ -1,0 +1,22 @@
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env
+
+# Secrets / DB
+credentials.json
+token.json
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+
+# Misc
+*.zip
