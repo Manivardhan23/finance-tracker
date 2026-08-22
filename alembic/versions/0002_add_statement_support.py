@@ -15,23 +15,10 @@ depends_on = None
 
 
 def upgrade():
-    with op.batch_alter_table("transactions") as batch_op:
-        # Statement-uploaded transactions have no Gmail message id
-        batch_op.alter_column(
-            "gmail_message_id",
-            existing_type=sa.String(),
-            nullable=True,
-        )
-        batch_op.add_column(
-            sa.Column("source", sa.String(), nullable=False, server_default="email")
-        )
+    # source + nullable gmail_message_id are already included in the 0001
+    # baseline CREATE TABLE, so nothing to do on a fresh database.
+    pass
 
 
 def downgrade():
-    with op.batch_alter_table("transactions") as batch_op:
-        batch_op.drop_column("source")
-        batch_op.alter_column(
-            "gmail_message_id",
-            existing_type=sa.String(),
-            nullable=False,
-        )
+    pass

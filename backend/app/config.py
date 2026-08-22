@@ -35,7 +35,9 @@ class Settings(BaseSettings):
     PUBLIC_URL: str = ""
 
     class Config:
-        env_file = ".env"
+        # Absolute path ensures .env loads correctly whether running from
+        # backend/ (uvicorn) or the project root (alembic)
+        env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
 
 
 settings = Settings()

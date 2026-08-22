@@ -103,7 +103,51 @@ def delete_transaction(
     return {"message": "Transaction deleted"}
 
 
+# ── Manual Gmail Sync ──────────────────────────────────────────────────────────
+
+@router.post("/sync")
+def manual_sync(
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_user),
+):
+    """Manually trigger a Gmail catch-up sync + re-categorize all transactions."""
+    from .gmail.catchup import run_catchup_sync
+    from .categorize import sync_default_rules, recategorize_all
+    try:
+        # 1. Push any new default keywords to the DB
+        sync_default_rules(db)
+        # 2. Fetch new emails from Gmail
+        added = run_catchup_sync(db, days=7)
+        # 3. Re-apply rules to ALL existing transactions (fixes old Uncategorized ones)
+        updated = recategorize_all(db)
+        return {
+            "message": f"Sync complete. Added {added} new transaction(s), fixed {updated} categor{'y' if updated == 1 else 'ies'}.",
+            "added": added,
+            "recategorized": updated,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Sync failed: {e}")
+
+
+@router.post("/recategorize")
+def recategorize_all_transactions(
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_user),
+):
+    """Re-apply all category keyword rules to every existing transaction."""
+    from .categorize import recategorize_all
+    try:
+        updated = recategorize_all(db)
+        return {
+            "message": f"Done! Fixed {updated} transaction{'s' if updated != 1 else ''}.",
+            "updated": updated,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Recategorize failed: {e}")
+
+
 # ── Summary ────────────────────────────────────────────────────────────────────
+
 
 @router.get("/summary", response_model=List[schemas.CategorySummary])
 def get_summary(
