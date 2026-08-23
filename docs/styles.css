@@ -657,4 +657,17 @@ tbody tr:hover td { background: #fafbff; }
   /* Filter bar stacks */
   .filter-bar { gap: 6px; }
   .filter-bar select { flex: 1; min-width: 0; }
+
+  /* iOS Safari auto-zooms the page when focusing any input/select/textarea
+     with font-size under 16px, and the zoom can persist across navigation
+     and refresh. Force 16px on every form field on mobile to prevent this
+     (desktop keeps its original, denser sizing above). */
+  .login-card input,
+  .search-wrap input,
+  .filter-bar select,
+  .field input,
+  .field select,
+  .add-rule-row input {
+    font-size: 16px;
+  }
 }
