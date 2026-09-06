@@ -5,11 +5,10 @@
 const API_BASE = 'https://finance-tracker-z1ea.onrender.com/api';
 
 // Chart instances
-let barChart       = null;
-let balanceLine    = null;
-let sparklineChart = null;
-let monthlyPie     = null;
-let dailyBar       = null;
+let barChart         = null;
+let incomeExpenseBar = null;
+let monthlyPie       = null;
+let dailyBar         = null;
 
 // Cache
 let categoriesCache   = [];
@@ -303,16 +302,30 @@ function catBorder(name) { return CAT_COLORS_LEGACY[name] || catColor(name); }
 /* ══════════════════════════════════════════════════════════════
    DASHBOARD / OVERVIEW
    ══════════════════════════════════════════════════════════════ */
+/* ── Starting balance (persisted to localStorage) ─────────── */
+function getStartingBalance() {
+  return parseFloat(localStorage.getItem('ft_starting_balance') || '0');
+}
+function setStartingBalance(val) {
+  localStorage.setItem('ft_starting_balance', val);
+}
+
 function renderDashboard() {
   const txs = transactionsCache;
   const debits  = txs.filter(t => t.transaction_type !== 'credit');
   const credits = txs.filter(t => t.transaction_type === 'credit');
   const totalDebit  = debits.reduce((a, t) => a + t.amount, 0);
   const totalCredit = credits.reduce((a, t) => a + t.amount, 0);
-  const net = totalCredit - totalDebit;
+  const startingBal = getStartingBalance();
+  const availBal    = startingBal + totalCredit - totalDebit;
 
-  // ── This month stats
-  const now = new Date();
+  // ── Savings rate (% of income NOT spent)
+  const savingsRate = totalCredit > 0
+    ? Math.max(0, ((totalCredit - totalDebit) / totalCredit * 100)).toFixed(1)
+    : null;
+
+  // ── This month vs last month stats
+  const now  = new Date();
   const thisY = now.getFullYear(), thisM = now.getMonth();
   const lastM = thisM === 0 ? 11 : thisM - 1;
   const lastY = thisM === 0 ? thisY - 1 : thisY;
@@ -321,51 +334,50 @@ function renderDashboard() {
     const d = new Date(tx.date + 'T00:00:00');
     return d.getFullYear() === y && d.getMonth() === m;
   }
-  const thisMonthDebits = debits.filter(t => inMonth(t, thisY, thisM)).reduce((a, t) => a + t.amount, 0);
-  const lastMonthDebits = debits.filter(t => inMonth(t, lastY, lastM)).reduce((a, t) => a + t.amount, 0);
-  const expChange = lastMonthDebits > 0 ? ((thisMonthDebits - lastMonthDebits) / lastMonthDebits * 100) : 0;
+  const thisMonthDebits  = debits.filter(t => inMonth(t, thisY, thisM)).reduce((a,t) => a+t.amount, 0);
+  const lastMonthDebits  = debits.filter(t => inMonth(t, lastY, lastM)).reduce((a,t) => a+t.amount, 0);
+  const thisMonthCredits = credits.filter(t => inMonth(t, thisY, thisM)).reduce((a,t) => a+t.amount, 0);
+  const lastMonthCredits = credits.filter(t => inMonth(t, lastY, lastM)).reduce((a,t) => a+t.amount, 0);
+  const expChange = lastMonthDebits  > 0 ? ((thisMonthDebits  - lastMonthDebits)  / lastMonthDebits  * 100) : null;
+  const incChange = lastMonthCredits > 0 ? ((thisMonthCredits - lastMonthCredits) / lastMonthCredits * 100) : null;
 
-  const thisMonthCredits = credits.filter(t => inMonth(t, thisY, thisM)).reduce((a, t) => a + t.amount, 0);
-  const lastMonthCredits = credits.filter(t => inMonth(t, lastY, lastM)).reduce((a, t) => a + t.amount, 0);
-  const incChange = lastMonthCredits > 0 ? ((thisMonthCredits - lastMonthCredits) / lastMonthCredits * 100) : 0;
-
-  // ── KPI Grid
+  // ── KPI Grid (4 cards: Expenses, Income, Savings Rate, Transaction count)
   const kpiData = [
     {
       label: 'Total Expenses',
       value: fmtAmount(totalDebit),
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>`,
       change: expChange,
+      changeLabel: expChange !== null ? `${Math.abs(expChange).toFixed(1)}% vs last month` : null,
+      changeDir: expChange !== null ? (expChange >= 0 ? 'up-bad' : 'down-good') : null,
       sub: `${debits.length} transactions`,
-      color: '#ef4444',
-      bg: 'rgba(239,68,68,0.1)',
+      color: '#ef4444', bg: 'rgba(239,68,68,0.1)',
     },
     {
       label: 'Total Income',
       value: fmtAmount(totalCredit),
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
       change: incChange,
+      changeLabel: incChange !== null ? `${Math.abs(incChange).toFixed(1)}% vs last month` : null,
+      changeDir: incChange !== null ? (incChange >= 0 ? 'up' : 'down') : null,
       sub: `${credits.length} transactions`,
-      color: '#10b981',
-      bg: 'rgba(16,185,129,0.1)',
+      color: '#10b981', bg: 'rgba(16,185,129,0.1)',
     },
     {
-      label: 'Net Balance',
-      value: (net >= 0 ? '+' : '−') + fmtAmount(Math.abs(net)),
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${net >= 0 ? '#10b981' : '#ef4444'}" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
-      change: null,
-      sub: net >= 0 ? 'Surplus' : 'Deficit',
-      color: net >= 0 ? '#10b981' : '#ef4444',
-      bg: net >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+      label: 'Savings Rate',
+      value: savingsRate !== null ? `${savingsRate}%` : '—',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/></svg>`,
+      change: null, changeLabel: null, changeDir: null,
+      sub: totalCredit > 0 ? (totalCredit >= totalDebit ? '✓ Spending within income' : '⚠ Spending exceeds income') : 'No income recorded',
+      color: '#6366f1', bg: 'rgba(99,102,241,0.1)',
     },
     {
       label: 'Transactions',
       value: txs.length,
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
-      change: null,
-      sub: debits.length > 0 ? `Avg ${fmtAmount(totalDebit / debits.length)} / tx` : '—',
-      color: '#6366f1',
-      bg: 'rgba(99,102,241,0.1)',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+      change: null, changeLabel: null, changeDir: null,
+      sub: debits.length > 0 ? `Avg ${fmtAmount(totalDebit / debits.length)} per debit` : '—',
+      color: '#06b6d4', bg: 'rgba(6,182,212,0.1)',
     },
   ];
 
@@ -376,82 +388,56 @@ function renderDashboard() {
         <span class="kpi-icon">${k.icon}</span>
       </div>
       <div class="kpi-value">${k.value}</div>
-      ${k.change !== null ? `
-        <div class="kpi-change ${k.change >= 0 ? 'up' : 'down'}">
-          ${k.change >= 0 ? '↑' : '↓'} ${Math.abs(k.change).toFixed(1)}% vs last month
+      ${k.changeLabel ? `
+        <div class="kpi-change ${k.changeDir === 'up-bad' ? 'down' : k.changeDir === 'down-good' ? 'up' : k.changeDir}">
+          ${k.changeDir?.startsWith('up') ? '↑' : '↓'} ${k.changeLabel}
         </div>` : ''}
       <div class="kpi-sub">${k.sub}</div>
     </div>
   `).join('');
 
-  // ── Balance card
-  document.getElementById('balance-amount').textContent = (net >= 0 ? '' : '−') + fmtAmount(Math.abs(net));
-  document.getElementById('balance-change').textContent = net >= 0 ? '↑ Positive balance' : '↓ Negative balance';
-  document.getElementById('balance-change').className = 'balance-change ' + (net >= 0 ? 'up' : 'down');
-  document.getElementById('balance-income-meta').textContent = `Income: ${fmtAmount(totalCredit)}`;
-  document.getElementById('balance-expense-meta').textContent = `Expenses: ${fmtAmount(totalDebit)}`;
+  // ── Available balance card
+  const sbInput = document.getElementById('starting-balance-input');
+  if (sbInput) {
+    sbInput.value = getStartingBalance() || '';
+    sbInput.addEventListener('change', () => {
+      const val = parseFloat(sbInput.value) || 0;
+      setStartingBalance(val);
+      renderDashboard();
+    });
+  }
+  const balEl    = document.getElementById('balance-amount');
+  const changeEl = document.getElementById('balance-change');
+  if (balEl)    balEl.textContent = (availBal >= 0 ? '' : '−') + fmtAmount(Math.abs(availBal));
+  if (changeEl) {
+    const hasStarting = startingBal !== 0 || localStorage.getItem('ft_starting_balance') !== null;
+    changeEl.textContent = hasStarting
+      ? (availBal >= 0 ? '↑ Positive balance' : '↓ Negative balance')
+      : 'Enter your starting balance below';
+    changeEl.className = 'balance-change ' + (availBal >= 0 ? 'up' : 'down');
+  }
+  const incMeta = document.getElementById('balance-income-meta');
+  const expMeta = document.getElementById('balance-expense-meta');
+  if (incMeta) incMeta.textContent = `+ Income: ${fmtAmount(totalCredit)}`;
+  if (expMeta) expMeta.textContent = `− Expenses: ${fmtAmount(totalDebit)}`;
 
-  // ── Balance sparkline
-  renderSparkline(txs);
+  // ── Income vs Expenses grouped bar chart
+  renderIncomeExpenseBar(txs);
 
-  // ── Balance Development line chart
-  renderBalanceLine(txs);
-
-  // ── Expense bar chart
+  // ── Expense breakdown bar chart
   renderExpenseBar();
 
   // ── Top merchants
   renderTopMerchants();
 }
 
-/* ── Sparkline ────────────────────────────────────────────── */
-function renderSparkline(txs) {
-  const ctx = document.getElementById('balance-sparkline').getContext('2d');
-  if (sparklineChart) sparklineChart.destroy();
+/* ── Income vs Expenses grouped bar chart ────────────────── */
+function renderIncomeExpenseBar(txs) {
+  const ctx = document.getElementById('income-expense-bar')?.getContext('2d');
+  if (!ctx) return;
+  if (incomeExpenseBar) incomeExpenseBar.destroy();
 
-  // Last 7 months running net
-  const months = [];
-  const values = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(1);
-    d.setMonth(d.getMonth() - i);
-    const y = d.getFullYear(), m = d.getMonth();
-    const cr = txs.filter(t => t.transaction_type === 'credit' && new Date(t.date+'T00:00:00').getFullYear()===y && new Date(t.date+'T00:00:00').getMonth()===m)
-                   .reduce((a,t)=>a+t.amount,0);
-    const db = txs.filter(t => t.transaction_type !== 'credit' && new Date(t.date+'T00:00:00').getFullYear()===y && new Date(t.date+'T00:00:00').getMonth()===m)
-                   .reduce((a,t)=>a+t.amount,0);
-    months.push(d.toLocaleDateString('en-IN',{month:'short'}));
-    values.push(cr - db);
-  }
-
-  sparklineChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: months,
-      datasets: [{
-        data: values,
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99,102,241,0.1)',
-        borderWidth: 2,
-        fill: true,
-        pointRadius: 0,
-        tension: 0.4,
-      }],
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      scales: { x: { display: false }, y: { display: false } },
-    },
-  });
-}
-
-/* ── Balance development line chart ─────────────────────── */
-function renderBalanceLine(txs) {
-  const ctx = document.getElementById('balance-line-chart').getContext('2d');
-  if (balanceLine) balanceLine.destroy();
-
+  // Build per-month income & expense
   const monthMap = {};
   txs.forEach(t => {
     const d = new Date(t.date + 'T00:00:00');
@@ -466,56 +452,51 @@ function renderBalanceLine(txs) {
     const [y,m] = k.split('-');
     return new Date(+y, +m-1, 1).toLocaleDateString('en-IN', {month:'short', year:'2-digit'});
   });
-  const netVals = keys.map(k => monthMap[k].cr - monthMap[k].db);
-  const dbVals  = keys.map(k => monthMap[k].db);
 
-  // Highlights
-  const maxIncome  = Math.max(...keys.map(k => monthMap[k].cr));
-  const maxExpense = Math.max(...keys.map(k => monthMap[k].db));
+  // Update header chips
   const devEl = document.getElementById('balance-dev-stats');
-  if (devEl) {
+  if (devEl && keys.length) {
+    const maxInc = Math.max(...keys.map(k => monthMap[k].cr));
+    const maxExp = Math.max(...keys.map(k => monthMap[k].db));
     devEl.innerHTML = `
-      <div class="balance-dev-chips">
-        <div class="dev-chip"><span style="color:var(--text-3);font-size:.68rem">HIGHEST INCOME</span><strong style="color:var(--green)">${fmtAmount(maxIncome)}</strong></div>
-        <div class="dev-chip"><span style="color:var(--text-3);font-size:.68rem">HIGHEST EXPENSE</span><strong style="color:var(--red)">${fmtAmount(maxExpense)}</strong></div>
+      <div style="display:flex;gap:8px">
+        <div class="dev-chip"><span style="color:var(--text-3);font-size:.68rem">BEST INCOME</span><strong style="color:var(--green)">${fmtAmount(maxInc)}</strong></div>
+        <div class="dev-chip"><span style="color:var(--text-3);font-size:.68rem">MOST SPENT</span><strong style="color:var(--red)">${fmtAmount(maxExp)}</strong></div>
       </div>`;
   }
 
-  balanceLine = new Chart(ctx, {
-    type: 'line',
+  incomeExpenseBar = new Chart(ctx, {
+    type: 'bar',
     data: {
       labels,
       datasets: [
         {
-          label: 'Net',
-          data: netVals,
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99,102,241,0.08)',
-          borderWidth: 2.5,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 3,
-          pointBackgroundColor: '#6366f1',
+          label: 'Income',
+          data: keys.map(k => monthMap[k].cr),
+          backgroundColor: 'rgba(16,185,129,0.7)',
+          borderColor: '#10b981',
+          borderWidth: 1,
+          borderRadius: 4,
+          borderSkipped: false,
         },
         {
           label: 'Expenses',
-          data: dbVals,
+          data: keys.map(k => monthMap[k].db),
+          backgroundColor: 'rgba(239,68,68,0.7)',
           borderColor: '#ef4444',
-          backgroundColor: 'transparent',
-          borderWidth: 1.5,
-          borderDash: [4,3],
-          fill: false,
-          tension: 0.4,
-          pointRadius: 0,
+          borderWidth: 1,
+          borderRadius: 4,
+          borderSkipped: false,
         },
       ],
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: '#9ca3b0', font: { size: 11, family: 'Inter' }, boxWidth: 12, boxHeight: 12, padding: 12 },
+          labels: { color: '#9ca3b0', font: { size: 11, family: 'Inter' }, boxWidth: 12, boxHeight: 12, padding: 14 },
         },
         tooltip: {
           backgroundColor: '#1e2336',
@@ -527,18 +508,16 @@ function renderBalanceLine(txs) {
         },
       },
       scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#5d6578', font: { size: 11 } },
-        },
+        x: { grid: { display: false }, ticks: { color: '#5d6578', font: { size: 11 } } },
         y: {
           grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#5d6578', font: { size: 11 }, callback: v => '₹'+v.toLocaleString('en-IN') },
+          ticks: { color: '#5d6578', font: { size: 11 }, callback: v => '₹' + v.toLocaleString('en-IN') },
         },
       },
     },
   });
 }
+
 
 /* ── Expense Bar Chart ────────────────────────────────────── */
 function renderExpenseBar() {

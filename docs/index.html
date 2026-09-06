@@ -153,27 +153,28 @@
             <div class="balance-label">Available Balance</div>
             <div class="balance-amount" id="balance-amount">₹0.00</div>
             <div class="balance-change" id="balance-change"></div>
-            <div class="balance-card-graphic">
-              <div class="chart-fixed" style="height:60px">
-                <canvas id="balance-sparkline"></canvas>
-              </div>
-            </div>
-            <div class="balance-meta">
+            <div class="balance-meta" style="margin-top:10px">
               <span id="balance-income-meta">Income: ₹0</span>
               <span>·</span>
               <span id="balance-expense-meta">Expenses: ₹0</span>
+            </div>
+            <div class="starting-balance-row">
+              <label class="starting-balance-label">Starting Balance</label>
+              <div class="starting-balance-input-wrap">
+                <span class="starting-balance-symbol">₹</span>
+                <input id="starting-balance-input" type="number" placeholder="0" step="0.01">
+              </div>
+              <span class="starting-balance-hint">Your bank balance before using this app</span>
             </div>
           </div>
 
           <div class="card">
             <div class="card-header">
-              <span class="card-title">Balance Development</span>
-              <div class="card-header-right">
-                <span class="card-subtitle" id="balance-dev-stats"></span>
-              </div>
+              <span class="card-title">Income vs Expenses</span>
+              <div class="card-header-right" id="balance-dev-stats"></div>
             </div>
             <div class="chart-fixed" style="height:200px">
-              <canvas id="balance-line-chart"></canvas>
+              <canvas id="income-expense-bar"></canvas>
             </div>
           </div>
         </div>
