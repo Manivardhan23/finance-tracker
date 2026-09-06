@@ -47,20 +47,70 @@ def _resolve_credential_paths() -> tuple[str, str]:
     return creds_path, token_path
 
 
-def get_gmail_service():
-    """Build and return an authenticated Gmail API service object."""
+def _load_token_json(token_path: str, db=None) -> str | None:
+    """
+    Returns the token JSON string, preferring the DB-persisted copy over the
+    file on disk (the DB copy is always the most recently refreshed one).
+    """
+    if db is not None:
+        try:
+            from ..models import AppConfig
+            row = db.query(AppConfig).filter(AppConfig.key == "gmail_token_json").first()
+            if row and row.value:
+                return row.value
+        except Exception:
+            pass
+    if os.path.exists(token_path):
+        with open(token_path) as f:
+            return f.read()
+    return None
+
+
+def _save_token_json(token_json: str, token_path: str, db=None) -> None:
+    """
+    Persist the refreshed token both to disk (for local dev) and to the DB
+    (so Render/Cloud Run containers survive restarts without losing the token).
+    """
+    # Always write to disk so local dev works
+    with open(token_path, "w") as f:
+        f.write(token_json)
+
+    # Also persist to DB if a session is available
+    if db is not None:
+        try:
+            from ..models import AppConfig
+            row = db.query(AppConfig).filter(AppConfig.key == "gmail_token_json").first()
+            if row:
+                row.value = token_json
+            else:
+                db.add(AppConfig(key="gmail_token_json", value=token_json))
+            db.commit()
+            print("[gmail] Refreshed token saved to database.")
+        except Exception as e:
+            print(f"[gmail] Warning: could not save token to DB: {e}")
+
+
+def get_gmail_service(db=None):
+    """
+    Build and return an authenticated Gmail API service object.
+
+    Pass a SQLAlchemy Session as `db` to enable DB-backed token persistence
+    (recommended for deployed environments like Render where /tmp is ephemeral).
+    """
     creds_path, token_path = _resolve_credential_paths()
     creds = None
 
-    if os.path.exists(token_path):
-        creds = Credentials.from_authorized_user_file(token_path, settings.SCOPES)
+    token_json_str = _load_token_json(token_path, db)
+    if token_json_str:
+        creds = Credentials.from_authorized_user_info(
+            json.loads(token_json_str), settings.SCOPES
+        )
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-            # Persist refreshed token (stays in /tmp for Cloud Run, or local file locally)
-            with open(token_path, "w") as token:
-                token.write(creds.to_json())
+            # Persist the refreshed token to both disk and DB
+            _save_token_json(creds.to_json(), token_path, db)
         else:
             if not os.path.exists(creds_path):
                 raise FileNotFoundError(
@@ -69,8 +119,7 @@ def get_gmail_service():
                 )
             flow = InstalledAppFlow.from_client_secrets_file(creds_path, settings.SCOPES)
             creds = flow.run_local_server(port=0)
-            with open(token_path, "w") as token:
-                token.write(creds.to_json())
+            _save_token_json(creds.to_json(), token_path, db)
 
     try:
         service = build("gmail", "v1", credentials=creds)

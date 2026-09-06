@@ -132,7 +132,7 @@ def setup_gmail_watch(db: Session) -> None:
         return
 
     try:
-        service = get_gmail_service()
+        service = get_gmail_service(db)
         if not service:
             print("[startup] Gmail service unavailable — skipping watch setup.")
             return
@@ -191,7 +191,7 @@ async def gmail_push_webhook(
         return {"status": "baseline set"}
 
     try:
-        service = get_gmail_service()
+        service = get_gmail_service(db)
         if not service:
             return {"status": "gmail unavailable"}
 

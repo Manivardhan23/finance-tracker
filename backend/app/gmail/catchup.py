@@ -23,7 +23,7 @@ def run_catchup_sync(db: Session, days: int = 3) -> int:
     print(f"[startup] Running catch-up sync for the last {days} days...")
 
     try:
-        service = get_gmail_service()
+        service = get_gmail_service(db)
         if not service:
             print("[startup] Gmail service unavailable — skipping catch-up.")
             return 0
