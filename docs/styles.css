@@ -670,6 +670,18 @@ a { text-decoration: none; color: inherit; }
   color: var(--text-3);
   display: block;
 }
+.sb-eye-btn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
+  flex-shrink: 0;
+}
+.sb-eye-btn:hover { color: var(--text-2); }
 
 /* ── Balance development highlights ───────────────────────── */
 .balance-dev-chips {
