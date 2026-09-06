@@ -701,7 +701,7 @@ function renderMonthlyDonut(monthTxs) {
       }],
     },
     options: {
-      responsive: true, maintainAspectRatio: true,
+      responsive: true, maintainAspectRatio: false,
       cutout: '68%',
       plugins: {
         legend: {

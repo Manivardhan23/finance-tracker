@@ -154,7 +154,9 @@
             <div class="balance-amount" id="balance-amount">₹0.00</div>
             <div class="balance-change" id="balance-change"></div>
             <div class="balance-card-graphic">
-              <canvas id="balance-sparkline" height="60"></canvas>
+              <div class="chart-fixed" style="height:60px">
+                <canvas id="balance-sparkline"></canvas>
+              </div>
             </div>
             <div class="balance-meta">
               <span id="balance-income-meta">Income: ₹0</span>
@@ -170,7 +172,9 @@
                 <span class="card-subtitle" id="balance-dev-stats"></span>
               </div>
             </div>
-            <canvas id="balance-line-chart" height="130"></canvas>
+            <div class="chart-fixed" style="height:200px">
+              <canvas id="balance-line-chart"></canvas>
+            </div>
           </div>
         </div>
 
@@ -181,7 +185,9 @@
               <span class="card-title">Expense Breakdown</span>
               <span class="card-subtitle">By category</span>
             </div>
-            <canvas id="bar-chart" height="160"></canvas>
+            <div class="chart-fixed" style="height:220px">
+              <canvas id="bar-chart"></canvas>
+            </div>
             <div class="breakdown-stats" id="breakdown-stats"></div>
           </div>
 
@@ -219,14 +225,18 @@
               <span class="card-title">Spending by Category</span>
             </div>
             <div class="chart-donut-wrap">
-              <canvas id="monthly-pie-chart"></canvas>
+              <div class="chart-fixed" style="height:260px">
+                <canvas id="monthly-pie-chart"></canvas>
+              </div>
             </div>
           </div>
           <div class="card">
             <div class="card-header">
               <span class="card-title">Daily Spending</span>
             </div>
-            <canvas id="daily-bar-chart" height="180"></canvas>
+            <div class="chart-fixed" style="height:240px">
+              <canvas id="daily-bar-chart"></canvas>
+            </div>
           </div>
         </div>
 

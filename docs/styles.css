@@ -719,8 +719,19 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* ── Chart wraps ─────────────────────────────────────────────── */
+.chart-fixed {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+.chart-fixed canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
 .chart-donut-wrap {
-  max-width: 260px;
+  max-width: 300px;
   margin: 0 auto;
 }
 
