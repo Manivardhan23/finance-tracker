@@ -1,7 +1,8 @@
 """
-Catch-up sync: on server startup, fetch HDFC emails from the last N days
-and store any that are not already in the database.
-This ensures no emails are missed when the server was down.
+Catch-up sync: on server startup (and on manual /sync), fetch HDFC emails
+from the last N days and store any that are not already in the database.
+
+Uses IMAP + Gmail App Password — no OAuth, no expiring tokens.
 """
 from datetime import datetime, timedelta
 
@@ -11,29 +12,35 @@ from sqlalchemy.exc import IntegrityError
 from ..config import settings
 from .. import models
 from ..categorize import categorize_transaction
-from .client import get_gmail_service, fetch_hdfc_emails
+from .imap_client import fetch_hdfc_emails_imap
 from .parser import parse_hdfc_email
 
 
-def run_catchup_sync(db: Session, days: int = 3) -> int:
+def run_catchup_sync(db: Session, days: int = 7) -> int:
     """
     Fetch HDFC emails from the last `days` days and insert any missing ones.
     Returns the number of new transactions added.
     """
     print(f"[startup] Running catch-up sync for the last {days} days...")
 
-    try:
-        service = get_gmail_service(db)
-        if not service:
-            print("[startup] Gmail service unavailable — skipping catch-up.")
-            return 0
-    except Exception as e:
-        print(f"[startup] Gmail init failed — skipping catch-up: {e}")
+    if not settings.GMAIL_USER or not settings.GMAIL_APP_PASSWORD:
+        print("[startup] GMAIL_USER or GMAIL_APP_PASSWORD not set — skipping catch-up.")
         return 0
 
-    # Build date-filtered query
-    since_date = (datetime.now() - timedelta(days=days)).strftime("%Y/%m/%d")
-    emails = fetch_hdfc_emails(service, max_results=50, extra_query=f"after:{since_date}")
+    since_dt = datetime.now() - timedelta(days=days)
+    # IMAP SINCE format: DD-Mon-YYYY (e.g. "01-Sep-2025")
+    since_date = since_dt.strftime("%d-%b-%Y")
+
+    try:
+        emails = fetch_hdfc_emails_imap(
+            gmail_user=settings.GMAIL_USER,
+            app_password=settings.GMAIL_APP_PASSWORD,
+            max_results=100,
+            since_date=since_date,
+        )
+    except Exception as e:
+        print(f"[startup] IMAP fetch failed — skipping catch-up: {e}")
+        return 0
 
     added = 0
     for email_data in emails:

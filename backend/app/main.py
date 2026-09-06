@@ -6,12 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base, SessionLocal
 from .config import settings
 from . import routes
-from .gmail.push import push_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup tasks: bootstrap DB, seed data, catch-up sync, Gmail watch."""
+    """Startup tasks: bootstrap DB, seed data, catch-up sync."""
     db = SessionLocal()
     try:
         # 1. Create all tables
@@ -25,13 +24,9 @@ async def lifespan(app: FastAPI):
         from .categorize import seed_default_categories
         seed_default_categories(db)
 
-        # 4. Catch-up sync — fetch last 3 days of HDFC emails
+        # 4. Catch-up sync — fetch last 7 days of HDFC emails via IMAP
         from .gmail.catchup import run_catchup_sync
-        run_catchup_sync(db, days=3)
-
-        # 5. Register Gmail push watch (only if PUBLIC_URL is configured)
-        from .gmail.push import setup_gmail_watch
-        setup_gmail_watch(db)
+        run_catchup_sync(db, days=7)
 
     finally:
         db.close()
@@ -52,7 +47,6 @@ app.add_middleware(
 )
 
 app.include_router(routes.router, prefix="/api")
-app.include_router(push_router, prefix="/api")  # webhook doesn't need auth
 
 
 @app.get("/")

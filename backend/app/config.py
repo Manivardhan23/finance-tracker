@@ -16,15 +16,17 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "changeme"
 
-    # Gmail API settings
+    # Gmail IMAP credentials (App Password — never expires, no OAuth needed)
+    # Set these in Render environment variables.
+    GMAIL_USER: str = ""          # your Gmail address e.g. you@gmail.com
+    GMAIL_APP_PASSWORD: str = ""  # 16-char App Password from myaccount.google.com/apppasswords
+
+    # Legacy OAuth fields (kept so old .env files don't break, but no longer used)
     SCOPES: list[str] = ["https://www.googleapis.com/auth/gmail.readonly"]
     CREDENTIALS_FILE: str = "credentials.json"
     TOKEN_FILE: str = "token.json"
-
-    # On Cloud Run, pass the entire JSON file contents as env vars instead of files.
-    # Leave empty when running locally (local files are used instead).
-    CREDENTIALS_JSON: str = ""   # full content of credentials.json
-    TOKEN_JSON: str = ""         # full content of token.json
+    CREDENTIALS_JSON: str = ""
+    TOKEN_JSON: str = ""
 
     # Gmail Push / Pub/Sub
     GOOGLE_CLOUD_PROJECT: str = "finance-tracker-506109"
