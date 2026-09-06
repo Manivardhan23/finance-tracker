@@ -6,22 +6,34 @@
   <title>Finance Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="login-screen" class="login-screen hidden">
+  <div class="login-bg-glow"></div>
   <div class="login-card">
-    <div class="login-icon">💰</div>
-    <h1>Finance Tracker</h1>
-    <p class="subtitle">Sign in to your dashboard</p>
+    <div class="login-brand">
+      <div class="login-logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="8" fill="url(#lg1)"/><path d="M7 17l5-5 4 4 5-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs></svg>
+      </div>
+      <span class="login-brand-name">FinanceTrack</span>
+    </div>
+    <h1>Welcome back</h1>
+    <p class="login-sub">Sign in to your personal finance dashboard</p>
     <form id="login-form">
-      <input id="login-username" type="text" placeholder="Username" required autocomplete="username">
-      <input id="login-password" type="password" placeholder="Password" required autocomplete="current-password">
-      <button type="submit" class="btn-primary full-width">Sign In</button>
+      <div class="login-field">
+        <label>Username</label>
+        <input id="login-username" type="text" placeholder="Enter username" required autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input id="login-password" type="password" placeholder="Enter password" required autocomplete="current-password">
+      </div>
       <p id="login-error" class="error-msg hidden"></p>
+      <button type="submit" class="btn-login">Sign In →</button>
     </form>
   </div>
 </div>
@@ -34,44 +46,69 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-icon">💰</div>
-      <div class="sidebar-logo-text">Finance<span>Track</span></div>
-      <button class="sidebar-close-btn" id="sidebar-close-btn" title="Close menu">✕</button>
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="8" fill="url(#lg2)"/><path d="M7 17l5-5 4 4 5-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="lg2" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs></svg>
+      </div>
+      <span class="sidebar-brand-name">FinanceTrack</span>
+      <button class="sidebar-close-btn" id="sidebar-close-btn">✕</button>
     </div>
 
-    <div class="sidebar-section-title">Menu</div>
-    <ul class="sidebar-nav">
-      <li class="active" data-section="overview">
-        <button><span class="nav-icon">📊</span> Overview</button>
-      </li>
-      <li data-section="transactions">
-        <button><span class="nav-icon">💳</span> Transactions</button>
-      </li>
-      <li data-section="categories">
-        <button><span class="nav-icon">🏷️</span> Categories</button>
-      </li>
-    </ul>
+    <div class="sidebar-section-label">Main</div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" data-section="overview">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </span>
+        Dashboard
+      </a>
+      <a class="nav-item" data-section="monthly">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+        Monthly
+      </a>
+      <a class="nav-item" data-section="transactions">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
+        Transactions
+      </a>
+      <a class="nav-item" data-section="categories">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        </span>
+        Categories
+      </a>
+    </nav>
 
-    <div class="sidebar-section-title">Tools</div>
-    <ul class="sidebar-nav" style="padding-top:0">
-      <li>
-        <button id="sidebar-sync-btn"><span class="nav-icon">🔄</span> Sync Gmail</button>
-      </li>
-      <li>
-        <button id="sidebar-upload-btn"><span class="nav-icon">📄</span> Upload Statement</button>
-      </li>
-    </ul>
+    <div class="sidebar-section-label" style="margin-top:8px">Tools</div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" id="sidebar-sync-btn">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </span>
+        Sync Gmail
+      </a>
+      <a class="nav-item" id="sidebar-upload-btn">
+        <span class="nav-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </span>
+        Upload Statement
+      </a>
+    </nav>
     <input type="file" id="statement-file" accept="application/pdf" class="hidden">
 
-    <div style="flex:1"></div>
+    <div class="sidebar-spacer"></div>
     <div class="sidebar-footer">
-      <div class="sidebar-avatar">A</div>
+      <div class="sidebar-avatar" id="sidebar-avatar">A</div>
       <div class="sidebar-user-info">
-        <div class="sidebar-username">admin</div>
+        <div class="sidebar-username" id="sidebar-username">admin</div>
         <div class="sidebar-role">Administrator</div>
       </div>
-      <button class="sidebar-logout" id="logout-btn" title="Logout">⇥</button>
+      <button class="sidebar-logout" id="logout-btn" title="Logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
   </aside>
 
@@ -79,103 +116,231 @@
   <div class="main-area">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger-btn" id="hamburger-btn" title="Menu">☰</button>
-        <div class="topbar-title" id="page-title">Overview</div>
+        <button class="hamburger-btn" id="hamburger-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title" id="page-title">Dashboard</div>
+          <div class="topbar-date" id="topbar-date"></div>
+        </div>
       </div>
       <div class="topbar-actions">
         <span class="sync-status" id="sync-status"></span>
-        <button class="btn-ghost" id="sync-btn">🔄 Sync Gmail</button>
-        <button class="btn-primary" id="add-tx-btn">+ Add Transaction</button>
+        <button class="btn-outline" id="sync-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Sync Gmail
+        </button>
+        <button class="btn-primary" id="add-tx-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Transaction
+        </button>
       </div>
     </header>
 
     <main class="content">
 
-      <!-- STATS -->
-      <div class="stats-grid" id="stats-grid">
-        <!-- injected -->
-      </div>
+      <!-- ═══ OVERVIEW SECTION ═══ -->
+      <section id="section-overview">
 
-      <!-- CHARTS ROW -->
-      <div class="two-col">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Spending by Category</span>
+        <!-- KPI CARDS -->
+        <div class="kpi-grid" id="kpi-grid">
+          <!-- injected by JS -->
+        </div>
+
+        <!-- MIDDLE ROW: Balance card + line chart -->
+        <div class="row-2col" style="margin-bottom:20px">
+          <div class="card card-balance" id="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount" id="balance-amount">₹0.00</div>
+            <div class="balance-change" id="balance-change"></div>
+            <div class="balance-card-graphic">
+              <canvas id="balance-sparkline" height="60"></canvas>
+            </div>
+            <div class="balance-meta">
+              <span id="balance-income-meta">Income: ₹0</span>
+              <span>·</span>
+              <span id="balance-expense-meta">Expenses: ₹0</span>
+            </div>
           </div>
-          <div class="chart-wrap">
-            <canvas id="pie-chart"></canvas>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Balance Development</span>
+              <div class="card-header-right">
+                <span class="card-subtitle" id="balance-dev-stats"></span>
+              </div>
+            </div>
+            <canvas id="balance-line-chart" height="130"></canvas>
           </div>
         </div>
+
+        <!-- BOTTOM ROW: Expense Breakdown + Saving Progress -->
+        <div class="row-3col">
+          <div class="card" style="grid-column: span 2;">
+            <div class="card-header">
+              <span class="card-title">Expense Breakdown</span>
+              <span class="card-subtitle">By category</span>
+            </div>
+            <canvas id="bar-chart" height="160"></canvas>
+            <div class="breakdown-stats" id="breakdown-stats"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Top Merchants</span>
+              <span class="card-subtitle">All time</span>
+            </div>
+            <div id="top-merchants"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══ MONTHLY SECTION ═══ -->
+      <section id="section-monthly" class="hidden">
+
+        <div class="month-nav">
+          <button class="btn-icon-round" id="prev-month-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span class="month-label" id="month-label"></span>
+          <button class="btn-icon-round" id="next-month-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        <!-- Monthly KPIs -->
+        <div class="kpi-grid" id="monthly-kpi-grid" style="margin-bottom:20px"></div>
+
+        <!-- Monthly charts row -->
+        <div class="row-2col" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Spending by Category</span>
+            </div>
+            <div class="chart-donut-wrap">
+              <canvas id="monthly-pie-chart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Daily Spending</span>
+            </div>
+            <canvas id="daily-bar-chart" height="180"></canvas>
+          </div>
+        </div>
+
+        <!-- Savings Progress -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <span class="card-title">Category Spending Progress</span>
+            <span class="card-subtitle">This month vs your total</span>
+          </div>
+          <div id="savings-progress-list"></div>
+        </div>
+
+        <!-- Monthly transactions -->
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Top Merchants</span>
-          </div>
-          <div id="top-merchants"><!-- injected --></div>
-        </div>
-      </div>
-
-      <!-- TRANSACTIONS -->
-      <div class="card" id="section-transactions">
-        <div class="card-header">
-          <div style="display:flex;align-items:center;gap:10px">
             <span class="card-title">Transactions</span>
-            <span class="count-badge" id="tx-count-badge">0</span>
+            <span class="count-badge" id="monthly-tx-count">0</span>
           </div>
-          <div style="display:flex;gap:8px">
-            <span id="upload-status" style="font-size:.82rem;font-weight:500;color:var(--credit)"></span>
-            <button class="btn-ghost" id="upload-btn">📄 Upload Statement</button>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Merchant</th>
+                  <th>Category</th>
+                  <th>Source</th>
+                  <th>Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="monthly-tx-body"></tbody>
+            </table>
           </div>
         </div>
 
-        <div class="filter-bar">
-          <div class="search-wrap">
-            <span class="search-icon">🔍</span>
-            <input id="tx-search" type="text" placeholder="Search merchants, notes...">
+      </section>
+
+      <!-- ═══ TRANSACTIONS SECTION ═══ -->
+      <section id="section-transactions" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="card-title">All Transactions</span>
+              <span class="count-badge" id="tx-count-badge">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span id="upload-status" class="upload-status-text"></span>
+              <button class="btn-outline" id="upload-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Statement
+              </button>
+            </div>
           </div>
-          <select id="tx-month-filter">
-            <option value="all">All Time</option>
-            <option value="this_month">This Month</option>
-            <option value="last_month">Last Month</option>
-            <option value="last_3">Last 3 Months</option>
-          </select>
-          <select id="tx-source-filter">
-            <option value="all">All Sources</option>
-            <option value="email">Email</option>
-            <option value="statement">Statement</option>
-            <option value="manual">Manual</option>
-          </select>
-        </div>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Merchant</th>
-                <th>Category</th>
-                <th>Source</th>
-                <th>Amount</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="tx-body"><!-- injected --></tbody>
-          </table>
-        </div>
-      </div>
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input id="tx-search" type="text" placeholder="Search merchants, notes, categories…">
+            </div>
+            <select id="tx-month-filter">
+              <option value="all">All Time</option>
+              <option value="this_month">This Month</option>
+              <option value="last_month">Last Month</option>
+              <option value="last_3">Last 3 Months</option>
+            </select>
+            <select id="tx-source-filter">
+              <option value="all">All Sources</option>
+              <option value="email">Email</option>
+              <option value="statement">Statement</option>
+              <option value="manual">Manual</option>
+            </select>
+            <select id="tx-type-filter">
+              <option value="all">All Types</option>
+              <option value="debit">Debit</option>
+              <option value="credit">Credit</option>
+            </select>
+          </div>
 
-      <!-- CATEGORIES -->
-      <div class="card" id="section-categories">
-        <div class="card-header">
-          <span class="card-title">Categories &amp; Rules</span>
-          <button class="btn-sm" id="new-cat-btn">+ New Category</button>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Merchant</th>
+                  <th>Category</th>
+                  <th>Source</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tx-body"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="categories-grid" id="categories-grid"><!-- injected --></div>
-      </div>
+      </section>
+
+      <!-- ═══ CATEGORIES SECTION ═══ -->
+      <section id="section-categories" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Categories & Rules</span>
+            <button class="btn-primary" id="new-cat-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Category
+            </button>
+          </div>
+          <div class="categories-grid" id="categories-grid"></div>
+        </div>
+      </section>
 
     </main>
   </div>
 </div>
 
-<!-- MODALS -->
+<!-- ═══ MODALS ═══ -->
 
 <!-- Add Transaction -->
 <div id="modal-add-tx" class="modal hidden">
@@ -185,27 +350,33 @@
       <button class="modal-close" data-close="modal-add-tx">✕</button>
     </div>
     <form id="add-tx-form" class="modal-form">
-      <div class="field"><label>Merchant / Description</label>
-        <input id="tx-merchant" type="text" placeholder="e.g. Reliance Fresh" required>
+      <div class="field">
+        <label>Merchant / Description</label>
+        <input id="tx-merchant" type="text" placeholder="e.g. Swiggy, Amazon" required>
       </div>
-      <div class="field"><label>Amount (₹)</label>
+      <div class="field">
+        <label>Amount (₹)</label>
         <input id="tx-amount" type="number" placeholder="0.00" step="0.01" min="0.01" required>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="field"><label>Type</label>
+      <div class="field-row">
+        <div class="field">
+          <label>Type</label>
           <select id="tx-type">
             <option value="debit">Debit (paid)</option>
             <option value="credit">Credit (received)</option>
           </select>
         </div>
-        <div class="field"><label>Date</label>
+        <div class="field">
+          <label>Date</label>
           <input id="tx-date" type="date" required>
         </div>
       </div>
-      <div class="field"><label>Category</label>
-        <select id="tx-category"><!-- filled by JS --></select>
+      <div class="field">
+        <label>Category</label>
+        <select id="tx-category"></select>
       </div>
-      <div class="field"><label>Note (optional)</label>
+      <div class="field">
+        <label>Note (optional)</label>
         <input id="tx-note" type="text" placeholder="e.g. Birthday dinner">
       </div>
       <div class="modal-footer">
@@ -223,7 +394,7 @@
       <h3 id="cat-modal-title">Category Rules</h3>
       <button class="modal-close" data-close="modal-cat">✕</button>
     </div>
-    <div id="cat-modal-body"><!-- injected --></div>
+    <div id="cat-modal-body"></div>
   </div>
 </div>
 
@@ -235,7 +406,8 @@
       <button class="modal-close" data-close="modal-new-cat">✕</button>
     </div>
     <form id="new-cat-form" class="modal-form">
-      <div class="field"><label>Category Name</label>
+      <div class="field">
+        <label>Category Name</label>
         <input id="new-cat-name" type="text" placeholder="e.g. Gym, Rent, Savings" required>
       </div>
       <div class="modal-footer">
@@ -253,9 +425,12 @@
       <h3>Change Category</h3>
       <button class="modal-close" data-close="modal-recat">✕</button>
     </div>
-    <div id="recat-body"><!-- injected --></div>
+    <div id="recat-body"></div>
   </div>
 </div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast hidden"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="app.js"></script>
