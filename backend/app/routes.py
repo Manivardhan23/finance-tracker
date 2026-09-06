@@ -117,7 +117,7 @@ def manual_sync(
         # 1. Push any new default keywords to the DB
         sync_default_rules(db)
         # 2. Fetch new emails from Gmail
-        added = run_catchup_sync(db, days=7)
+        added = run_catchup_sync(db, days=14)
         # 3. Re-apply rules to ALL existing transactions (fixes old Uncategorized ones)
         updated = recategorize_all(db)
         return {
